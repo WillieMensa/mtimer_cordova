@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  xmlns:svg="http://www.w3.org/2000/svg"
+  height="600"
+  width="600"
+  viewBox="0 0 600 600"
+  >
+
+  <!-- tambien ver ejemplo en circunferencias cruzadas -->
+  <style>
+
+    .background {
+      fill: #660;
+    }
+
+  </style>
+
+<g transform="translate(50,50)">
+
+<defs>
+
+<filter id="f1" x="0" y="0" width="150%" height="150%">
+<feOffset result="offOut" in="SourceAlphaGraphic" dx="16" dy="16" />
+<feColorMatrix result="matrixOut"  in="offOut" type="saturate" values="0.9712" />
+<feGaussianBlur result="blurOut" in="matrixOut" stdDeviation="10" />
+<feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+</filter>
+
+<filter id="f3" x="0" y="0" width="200%" height="200%">
+  <feOffset result="offOut" in="SourceAlpha" dx="20" dy="20" />
+  <feGaussianBlur result="blurOut" in="offOut" stdDeviation="10" />
+  <feBlend in="SourceGraphic" in2="blurOut" mode="normal" />
+</filter>
+
+
+</defs>
+
+
+
+  <g id="fondo" >
+    <rect x="0" y="0" width="512" height="512" class="background"/>
+  </g>
+	<!-- <rect  x="0" y="0" width="512" height="512" fill="blue"/> -->
+
+
+  <path d="M 128 96 
+	A 32 32 0 0 0 128 160
+	L 224,160 224,384
+	A 32 32 0 0 0 288 384
+	L 288 160 384 160
+	A 32 32 0 0 0 384 096 Z" stroke="red" fill="#FFFFAA" stroke-width="0" filter="url(#f3)"/>
+  
+</g>
+
+</svg>

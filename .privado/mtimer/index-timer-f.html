@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+<head>
+<!-- 
+	index-timer.html
+
+	Timer para contar horas:minutos:segundos restantes
+	basado en https://www.w3schools.com/howto/howto_js_countdown.asp
+	tutorial grilla  https://developer.mozilla.org/en-US/docs/Learn/CSS/CSS_layout/Grids	
+
+	Incluir
+		Pausar
+		volver a pantalla inicio
+
+	Modificar el ingreso del tiempo para el timer
+		usar flecha arriba/abajo para incrementar/decrementar tiempo
+
+-->
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="ISO-8859-1">
+
+<title>Temporizador</title> 
+
+<style>
+
+	* {
+		box-sizing: border-box;
+	}
+
+	html {
+		background-color:#011;
+		font-family: "Lucida Sans", sans-serif;
+	}
+
+	body {
+	  max-width: 900px;
+	  /*	height: 450px;	*/
+	  margin: 1em auto;
+    padding:10px;
+    text-transform:uppercase;
+		color: #ace;
+		padding:10px;
+    text-transform:uppercase;	
+	}
+
+	p {
+		text-align: center;
+		font-size: 4em;
+		margin-top: 0px;
+		position: absolute;
+		left: 100px;
+		top: 200px;
+		z-index: -1;
+	}
+
+	input {
+		text-align: center;
+		font-size: 2em;
+		margin-top: 0px;
+		background-color:#011;
+		color: #789;
+		border: 0;
+
+		position: absolute;
+		left: 0px;
+		top: 0px;
+		z-index: -1;
+
+	}
+
+	button {
+		width: 100px;
+		padding: 4px;
+		display: block;
+		margin-top: 4px;
+		font:  16px arial;
+		border: 1px;
+	}
+
+ 
+</style>
+
+</head>
+
+<body>
+<!-- <body onload="actualizaReloj(),fijaTiempo()"> -->
+
+
+<h3 style="">Demostracion de acceso a Time field (campo de tiempo)</h3>
+
+
+
+<div class="container">
+
+		<p id="logomensa"><a href="http://www.ar.mensa.org/" target="_blank">
+		<img src="mensa.png" width="91" height="91" border=0 alt="Miembro de Mensa Argentina"></a></p>
+
+		<button id="botonAjustes" onclick="alert();" >Ajustes</button>
+		<button id="botonFijaTpo" onclick="fijaTiempo();">Fijar tiempo</button>
+		<button id="botonReset" onclick="alert('nada');">Reiniciar</button><br>
+		<button id="botonInicio" onclick="fijaTiempo(),startButton();">Iniciar</button><br>
+
+		<p id="demo" style="top: 900 px; left: 800 px; position: absolute;" ></p>
+		<input type="time" id="tiempo" value="00:20:00" step='1' min="00:00:00" max="20:00:00">
+
+</div> 
+
+
+<script>
+
+//	-------------------------
+//	Constantes
+//	-------------------------
+let	FILA_BOTONES = 50,
+	LINEA_BOTONES = 470,
+	RENDERER_W = 1000,			//	1000,
+	RENDERER_H = 600,
+	COLOR_FONDO = 0xecffb3,		//	 "#ffc",
+	VERSION	= "0.2.3",			//	version inicial
+	FONDO_AYUDA = 0x008cff,
+	FONT_NIVEL1 = "luckiest_guyregular"	//	titulo:	"Bangers",	"Luckiest Guy",	"Titan One", "Sigmar One"
+	FONT_NIVEL2 = "bangersregular",	//	botones: "Bangers",	//	"Sigmar One",
+	FONT_NIVEL3 = "sriracharegular",		//	textos:
+
+	COLOR_BOTON = 0x0033cc,				//	COLOR_BOTON = 0x006600,
+	//	DEBUG = false;
+	DEBUG = true;
+
+
+//	el tiempo fijado en el timer en milisegundos
+var tiempo = "00:20:01"; // por defecto: 20 minutos 
+var distance = undefined; // por defecto: 20 minutos 
+var stopTime = undefined;
+
+
+
+//==================
+// BEGIN 
+//==================
+window.onload = function(){
+	init();
+};
+
+//--------------------
+// Initial
+//--------------------
+function init()
+{
+	//just for fixed: chrome sets cursor to text while dragging, why?
+	//http://stackoverflow.com/questions/2745028/chrome-sets-cursor-to-text-while-dragging-why
+	//This will disable any text selection on the page and it seems that browser starts to show custom cursors.
+	document.onselectstart = function(){ return false; } ;
+	
+	fijaTiempo();		//	muestra tiempo por default
+	
+	initLanguage();
+	initScreenVariable();
+	initScreenPosColor();	
+	
+
+}
+
+
+function fijaTiempo() {
+  var x = document.getElementById("tiempo").value;
+  document.getElementById("demo").innerHTML = x;
+}
+
+function invisible() {
+	//	uno.visible = false;
+	document.getElementById('cero').style.visibility='hidden';
+
+	console.log("trato de hacer invisible");
+}
+
+
+function startButton()
+{
+  var x = document.getElementById("tiempo").value;
+
+	distance = x.slice(0,2) * 3600000 + x.slice(3,5) * 60000 + x.slice(6,8) * 1000;
+	//	console.log( x.slice(0,2) + "-" + x.slice(3,5) +  "-" + x.slice(6,8) );
+	//	console.log( x.slice(0,2) + "-" + x.slice(3,5) +  "-" + x.slice(6,8) );
+	stopTime = new Date().getTime() + distance;		//	devuelve la hora actual
+	console.log("x, distance, stopTime: " + x + ", " + distance + ", " + stopTime);
+	iniciaReloj();
+}
+
+
+//	boton para iniciar timer
+function iniciaReloj() {
+	ocultaBotones();
+
+	//	setInterval() Ejecuta una función o un fragmento de código de forma repetitiva cada vez 
+	//	que termina el periodo de tiempo determinado. Devuelve un ID de proceso.
+	//	en este caso actualiza la cuenta regresiva cada segundo
+	var x = setInterval(function() {
+
+		// Get todays date and time
+		var now = new Date().getTime();
+
+		//	console.log( "stopTime, now, distance antes: " + stopTime +", " + now +", " + distance )
+
+		//	alert("ver distance")
+		console.log( "distance: " + distance )
+		// Find the distance between now and the count down date
+		distance = stopTime - now;
+		console.log( "distance: " + distance )
+
+		// Output the result in an element with id="demo"
+		//	document.getElementById("distance").innerHTML = distance;
+
+		actualizaReloj();
+		//	document.getElementById("demo").innerHTML = distance;
+
+			
+		// If the count down is over, write some text 
+		if (distance < 0) {
+			clearInterval(x);
+			document.getElementById("demo").innerHTML = "FINAL";
+		}
+	}, 1000);
+}
+
+
+
+function actualizaReloj() {
+		// Time calculations for hours, minutes and seconds
+		hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+		minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+		seconds = Math.floor((distance % (1000 * 60)) / 1000);
+			
+		var strSeg = ("00" + seconds) ;
+		// Output the result in an element with id="demo"
+		document.getElementById("demo").innerHTML = hours + ":" + minutes + ":" + strSeg.slice(-2);
+
+		//	console.log( hours + ":" + minutes + ":" + strSeg.slice(-strSeg.length, -2) );
+		console.log( "distance: " +  distance );
+		console.log( hours + ":" + minutes + ":" + strSeg.slice(-2) );
+		console.log( strSeg + ", " + strSeg.length + ", " + strSeg.slice(-2));
+}
+
+
+//--------------------
+// hidden all button
+//--------------------
+function ocultaBotones()
+{
+	//	document.getElementById('botonAjustes').style.visibility='hidden';
+	document.getElementById('botonFijaTpo').style.visibility='hidden';
+	document.getElementById('botonReset').style.visibility='hidden';
+	document.getElementById('botonInicio').style.visibility='hidden';
+	document.getElementById('tiempo').style.visibility='hidden';
+}
+
+
+
+//-------------------------------------------------------------------
+// adaptacion idiomas
+//-------------------------------------------------------------------
+function initLanguage()		//	para adaptar a diferentes idiomas
+{
+	var sysLang = "sp";
+
+	if(sysLang == "en" || sysLang == "en") { //	ingles
+		txtAyuda	= "Help";
+		txtJugar = "Play",
+		txtAcerca = "About",
+		txtDescAcerca =
+			'About MENSA timer version ' + VERSION  + '\n' +
+			'Is a timer developed by Willie Verger Ingenuity Games \n' + 
+			'Support: info@ingverger.com.ar\n' +
+			'Web: ingverger.com.ar\n' +
+			'\n';
+		txtDescAyuda = 
+			'How does it work? \n' +
+			'There is a set of cards, each with an image, placed in such a way \n' +
+			'The game ends when all pairs have been found. \n',
+			txtFin = "Well resolved!\nCongratulations! ",
+			txtTiempo = "Elapsed time: ";
+		finishText = "Congratulation";
+		levelText = "Level";
+	} else if(sysLang == "de" || sysLang == "de") { //	aleman
+		txtAyuda	= "Hilfe";
+		txtJugar = "Spielen",
+		txtAcerca = "Über",
+		txtDificu = "Schwierigkeit";
+		txtDescAcerca =
+			'Über MEMORIOSO Version ' + VERSION  + '\n' +
+			'Es ist ein von Willie Verger Ingenuity Games \n' + 
+			'entwickeltes Spiel, um Konzentration und \n' +
+			'Gedächtnis zu trainieren. \n' +
+			'Unterstützung: info@ingverger.com.ar\n' +
+			'Web: ingverger.com.ar\n' +
+			'\n';
+		txtDescAyuda = 
+			'Was ist es?\n' +
+			'MEMORIOSO ist ein Spiel der Konzentration und des Gedächtnisses.\n' +
+			'Es gibt eine Reihe von Karten mit jeweils einem Bild so platziert,\n' +
+			'dass seine Vorderseite nicht sichtbar ist.\n' +
+			'Es gibt zwei Registerkarten für jedes Bild. Das Spiel ist zu finden\n' +
+			'die Paare gleicher Bilder.\n' +
+			'Wenn Sie auf ein Bild klicken, wird es umgedreht.\n' +
+			'Es werden zwei aufeinander folgende Karten ausgewählt. Wenn sie \n' +
+			'sich als gleich herausstellen, werden sie vom Board entfernt. \n' +
+			'Wenn sie unterschiedlich sind, kehren sie zur ursprünglichen \n' +
+			'Position zurück.\n' +
+			'Das Spiel endet, wenn alle Paare gefunden wurden.\n',
+		txtFin = "Gut gelöst!\nGlückwunsch! ",
+		txtTiempo = "Verstrichene Zeit: ";
+		noSolutionText = "keine losung ";
+		nextText = "Nächste";
+		finishText = "Glückwunsch!";
+		levelText = "Niveau";
+	}
+}
+
+
+
+//----------------------------------------------
+//	asignacion de valores a variables basados en medidas de pantalla
+//----------------------------------------------
+function initScreenVariable()
+{
+	var screenWidth = 0, screenHeight = 0;	// ancho y alto de pantallla
+
+	var maxStageX = 1000;
+	var maxStageY = 800;
+	var maxCellSize = 64;
+
+	var midStageX = 800;
+	var midStageY = 600;
+	var midCellSize = 50;		//	var midCellSize = 32;
+
+	var miniStageX = 600;
+	var miniStageY = 400;
+	var miniCellSize = 36;	// 24;
+
+	var microStageX = 400;
+	var microStageY = 300;
+	var microCellSize = 32;	// 20;
+
+	//----------------------------------------------------------------------
+	// Window size and scrolling:
+	// URL: http://www.howtocreate.co.uk/tutorials/javascript/browserwindow
+	//----------------------------------------------------------------------
+	screenWidth = window.innerWidth;
+	screenHeight = window.innerHeight;
+
+	SCREEN_X = screenWidth;
+	SCREEN_Y = screenHeight;
+
+	//	STAGE_X = ((screenWidth%2)? (screenWidth-1):screenWidth) - microCellSize*2;
+	STAGE_X = Math.floor(screenWidth*0.95);
+
+
+	//	if(STAGE_X > maxStageX) STAGE_X = maxStageX;
+	//	if(STAGE_X < microStageX) STAGE_X = microStageX;
+	STAGE_OFFSET_X = Math.floor((screenWidth - STAGE_X)/2);
+	if(STAGE_OFFSET_X < microCellSize) STAGE_OFFSET_X = microCellSize;
+
+	//	STAGE_Y = ((screenHeight%2)?(screenHeight-1):screenHeight) - microCellSize*2;
+	STAGE_Y = Math.floor(screenHeight*0.90);
+
+	if(STAGE_Y > maxStageY) STAGE_Y = maxStageY;
+	if(STAGE_Y < microStageY) STAGE_Y = microStageY;
+	STAGE_OFFSET_Y = Math.floor((screenHeight - STAGE_Y)/2);
+	if(STAGE_OFFSET_Y < microCellSize) STAGE_OFFSET_Y = microCellSize;
+
+
+	if (DEBUG)	{	console.log("SCREEN_X: " + SCREEN_X + ' SCREEN_Y: ' + SCREEN_Y ); }
+
+
+	console.log( 'Parametros de pantalla'	);
+	console.log( 'SCREEN_X: ' +		SCREEN_X       );
+	console.log( 'SCREEN_Y: ' + 		SCREEN_Y       );
+	console.log( 'STAGE_X: ' + 		STAGE_X        );
+	console.log( 'STAGE_OFFSET_X: ' + 	STAGE_OFFSET_X );
+	console.log( 'STAGE_Y: ' + 		STAGE_Y        );
+	console.log( 'STAGE_OFFSET_Y: ' +  	STAGE_OFFSET_Y );
+
+}
+
+//----------------------------------------------
+// initial screen position and background color
+//----------------------------------------------
+function initScreenPosColor()
+{
+
+	document.getElementById('logomensa').style.cssText =		"top: 210 px; left: 010 px; position: absolute;";
+	document.getElementById('botonAjustes').style.cssText = "top: 400 px; left: 010 px; position: absolute;";
+	document.getElementById('botonFijaTpo').style.cssText = "top: 500 px; left: 010 px; position: absolute;";
+	document.getElementById('botonReset').style.cssText =		"top: 600 px; left: 010 px; position: absolute;";
+	document.getElementById('botonInicio').style.cssText =	"top: 700 px; left: 010 px; position: absolute;";
+	document.getElementById('demo').style.cssText =					"top: 800 px; left: 600 px; position: absolute;";
+	//	document.getElementById('tiempo').style.cssText =				"top: 900 px; left: 800 px; position: absolute;";
+
+	document.body.style.background = COLOR_FONDO; //body background color
+}
+
+
+
+</script>
+
+</body>
+</html>

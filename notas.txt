@@ -1,0 +1,73 @@
+
+manejo de *.json
+	http://renderhjs.net/shoebox/
+	https://github.com/twolfson/gulp.spritesmith
+both are free.
+
+
+--------------------------------------
+Juegos similares
+	Memory Tiles (frances)
+
+
+
+	Key Id  Title                                  Status    Last Used   Uploaded
+	------  -------------------------------------  --------  ----------  ----------
+	339924  SUMADO                                 LOCKED    2018-10-11  2018-08-10
+	339969  almacendeclaves                        LOCKED    2018-08-10  2018-08-10
+	360002  Alamacen de claves 20181224            LOCKED    2018-12-24  2018-12-24
+	no	360003  meorioso                               LOCKED    2019-01-05  2018-12-24
+	no	361200  Memoria y concentracion                LOCKED    2019-01-05  2019-01-05
+	361772  memorioso                              LOCKED    2019-01-17  2019-01-09
+
+
+
+
+
+COMPILACION PHONEGAP desde la linea de comando
+
+codigo de la aplicacion mtimer en Phonegap: 3544683
+
+# Sign-in to PhoneGap Build. login
+  pgb login
+
+  You will be prompted for Adobe ID and password. Once authenticated your
+  authentication token will be saved at ~/.pgbrc. Your Adobe ID and
+  password is not stored.
+  Adobe	ingverger@gmail.com	m0z4mB1qu3	ingverger@gmail.com
+
+
+# create a new app from a github repo
+> pgb new shazamable/repoodly
+
+
+# list your apps
+> pgb ls
+
+
+# actualizar el codigo en Phonegap
+  pgb update 3544683
+  pgb pull 3544683
+
+
+# unlock	Unlock a signing key
+//	Keystore Password: **********   <--- termopilas
+//	Private Key Password: **********   <--- termopilas
+//	android key 361772 unlocked
+pgb unlock android 3544683 key_password=termopilas keystore_password=termopilas
+
+# construir/compilar la aplicacion
+pgb build 3544683
+
+
+
+#descargar la aplicacion en carpeta dropbox/public
+  pgb download 3544683 android e:\Dropbox\GitHub\mtimer_phonegap_pgb\.privado\apk\
+
+
+https://build.phonegap.com/apps/3544683/download/android/?qr_key=o1ZWQFqH26stWAkGASL5
+
+https://build.phonegap.com/apps/3544683/install/o1ZWQFqH26stWAkGASL5
+
+
+
