@@ -14,6 +14,9 @@ M-Timer
 8/6/2019  - version 0.10.01 reparacion defectos touch en botones de ajuste de tiempo
 8/6/2019  - version 0.10.02 reparacion (definitiva) defectos touch en botones de ajuste de tiempo
 
+2021.03.05 - version 1.2.1
+
+
 
 # M-Timer
 by Willie Verger Juegos de Ingenio / Wit Games / wit Spiele
